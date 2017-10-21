@@ -6,7 +6,7 @@ import
 	log "github.com/Sirupsen/logrus"
 
 
-	"easyncv/func"
+	"easyncv/funcs"
 	"io/ioutil"
 	"fmt"
 	"bytes"
@@ -19,10 +19,17 @@ func main() {
 
 
 	//load parameters from json file
-	params :=nomad.LoadParamsConf("conf/hcl.json")
+	params :=funcs.LoadParamsConf("conf/hcl.json")
+	paramsConsul :=funcs.LoadParamsConfConsul("conf/consul.json")
 
 
-	cli, e := nomad.GetNomadClient(params.NomadUrl)
+	cli, e := funcs.GetNomadClient(params.NomadUrl)
+	if e != nil {
+		log.Error(e)
+
+	}
+
+	cliConsul, e := funcs.GetConsulClient(paramsConsul.Consulurl)
 	if e != nil {
 		log.Error(e)
 
@@ -55,6 +62,18 @@ func main() {
 
 		}
 		log.Info(evalID)
+
+
+
+		//consul exectute
+		// push framework state to consul
+		prefix := fmt.Sprintf("framework /%v/%v/state", paramsConsul.Framework, paramsConsul.Version)
+		_, err = cliConsul.PutKeyValue(prefix, "Running")
+		if err != nil {
+			log.Errorf("Consul Worker[worker/consul.go]: ERROR %v", err.Error())
+
+		}
+
 	}
 
 

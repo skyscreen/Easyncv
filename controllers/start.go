@@ -4,7 +4,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/astaxie/beego"
 
-	"easyncv/func"
+	"easyncv/funcs"
 	"fmt"
 	"bytes"
 )
@@ -158,10 +158,10 @@ func (c *StartController) Post() {
 	fmt.Println(content)
 
 	//load parameters from json file
-	params :=nomad.LoadParamsConf("conf/hcl.json")
+	params :=funcs.LoadParamsConf("conf/hcl.json")
 
 
-	cli, e := nomad.GetNomadClient(params.NomadUrl)
+	cli, e := funcs.GetNomadClient(params.NomadUrl)
 	if e != nil {
 		log.Error(e)
 
