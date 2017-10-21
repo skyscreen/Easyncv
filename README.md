@@ -26,7 +26,14 @@ Usage:
         "hclfile": "hcl/example.hcl"
       }
 
-      config consul.json for consul configuration
+      config consul.json for consul configuration e.g.
+
+      {
+        "framework":"easyncv",
+        "version":"0.2",
+        "url":"10.173.76.57:8500"
+
+      }
 
       2) page run
       start main.go
