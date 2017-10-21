@@ -10,6 +10,7 @@ This is a implementation tool for deploying cloud on nomad/consul/vault
 Usage:
       1)
        config hcl.json to start deploy e.g.
+       
       {
         "run":"start",
         "jobid":"an-service-2017",
