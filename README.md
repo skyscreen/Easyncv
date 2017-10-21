@@ -1,10 +1,11 @@
 
-EasyNCV version 0.1
+EasyNCV version 0.2
 
 This is a implementation tool for deploying cloud on nomad/consul/vault
 
 1. can support nomad deploy using your custom template, destroy job
 2. can support job/group/task template config on page(so far only 1)
+3. can support consul key/value create/delete
 
 
 Usage:
@@ -24,6 +25,9 @@ Usage:
         "nomadurl": "10.173.76.57:8500",
         "hclfile": "hcl/example.hcl"
       }
+
+      config consul.json for consul configuration
+
       2) page run
       start main.go
       http://localhost:8080
@@ -31,7 +35,7 @@ Usage:
 
       http://localhost:8080/stop to stop job
 
-      3) command line
+       command line
          run deploy.go
          run destroy.go
 
