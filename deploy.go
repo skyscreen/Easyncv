@@ -18,17 +18,16 @@ func main() {
 	fmt.Println("Deploy start")
 
 
-	//load parameters from json file
+	//load parameters from json file for nomad
 	params :=funcs.LoadParamsConf("conf/hcl.json")
-	paramsConsul :=funcs.LoadParamsConfConsul("conf/consul.json")
-
-
 	cli, e := funcs.GetNomadClient(params.NomadUrl)
 	if e != nil {
 		log.Error(e)
 
 	}
 
+	//load parameters from json file for consul
+	paramsConsul :=funcs.LoadParamsConfConsul("conf/consul.json")
 	cliConsul, e := funcs.GetConsulClient(paramsConsul.Consulurl)
 	if e != nil {
 		log.Error(e)

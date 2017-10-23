@@ -155,13 +155,19 @@ func (c *StartController) Post() {
 		return
 	}
 
-	fmt.Println(content)
+	//fmt.Println(content)
 
-	//load parameters from json file
+	//load parameters from json file for nomad
 	params :=funcs.LoadParamsConf("conf/hcl.json")
-
-
 	cli, e := funcs.GetNomadClient(params.NomadUrl)
+	if e != nil {
+		log.Error(e)
+
+	}
+
+	//load parameters from json file for consul
+	paramsConsul :=funcs.LoadParamsConfConsul("conf/consul.json")
+	cliConsul, e := funcs.GetConsulClient(paramsConsul.Consulurl)
 	if e != nil {
 		log.Error(e)
 
@@ -188,6 +194,15 @@ func (c *StartController) Post() {
 
 		}
 		log.Info(evalID)
+
+		//consul exectute
+		// push framework state to consul
+		prefix := fmt.Sprintf("framework /%v/%v/state", paramsConsul.Framework, paramsConsul.Version)
+		_, err = cliConsul.PutKeyValue(prefix, "Running")
+		if err != nil {
+			log.Errorf("Consul Worker[worker/consul.go]: ERROR %v", err.Error())
+
+		}
 	}
 
 

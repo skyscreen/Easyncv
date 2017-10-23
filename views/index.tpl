@@ -45,15 +45,7 @@
       text-decoration: none;
     }
 
-    .backdrop {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      box-shadow: inset 0px 0px 100px #ddd;
-      z-index: -1;
-      top: 0px;
-      left: 0px;
-    }
+
   </style>
 </head>
 
@@ -63,12 +55,16 @@
 
 
     <h1 class="logo">NCV configuration example</h1>
+    <br>
+    <br>
     <div class="description">
       Please input values for hcl file
     </div>
   </header>
 <form action="" method="post">
 {{.Form | renderform}}
+<br>
+<br>
 <br>
 <input type=submit value='Deploy'/>
 </form>
