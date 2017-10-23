@@ -82,7 +82,7 @@ func (c *VaultClient) connect(rawUrl string) error {
 
 // newVaultClient uses http protocol
 func (c *VaultClient) newVaultClient(url string) (*vaultApi.Client, error) {
-	/* url: "127.0.0.1:8500",*/
+
 
 	cli, err := vaultApi.NewClient(&vaultApi.Config{
 		Address: url,
