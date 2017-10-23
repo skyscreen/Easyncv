@@ -10,6 +10,7 @@ import
 	"io/ioutil"
 	"fmt"
 	"bytes"
+
 )
 
 
@@ -33,6 +34,16 @@ func main() {
 		log.Error(e)
 
 	}
+
+
+	//load parameters from json file for vault
+	paramsVault :=funcs.LoadParamsConfVault("conf/vault.json")
+	cliVault, e := funcs.GetVaultClient(paramsVault.Vaulturl)
+	if e != nil {
+		log.Error(e)
+
+	}
+	log.Info(cliVault)
 
 	arg := params.Run
 
@@ -73,6 +84,17 @@ func main() {
 
 		}
 
+/*
+
+                //vault init->unseal->enableAuth
+		//vault test help infor
+		helpstr, e:=cliVault.Help("help")
+		if e != nil {
+			log.Error(e)
+
+		}
+		log.Info(helpstr)
+*/
 	}
 
 
