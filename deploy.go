@@ -36,6 +36,7 @@ func main() {
 	}
 
 
+	/*
 	//load parameters from json file for vault
 	paramsVault :=funcs.LoadParamsConfVault("conf/vault.json")
 	cliVault, e := funcs.GetVaultClient(paramsVault.Vaulturl)
@@ -44,7 +45,7 @@ func main() {
 
 	}
 	log.Info(cliVault)
-
+*/
 	arg := params.Run
 
 	if arg=="start" {

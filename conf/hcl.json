@@ -1,6 +1,6 @@
 {
   "run":"start",
-  "jobid":"an-service-2017",
+  "jobid":"an-service-20171024",
   "nomadurl": "10.173.76.57:8500",
   "hclfile": "hcl/example.hcl"
 }
