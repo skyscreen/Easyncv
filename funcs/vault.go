@@ -3,12 +3,15 @@ package funcs
 import (
 	log "github.com/Sirupsen/logrus"
 	vaultApi "github.com/hashicorp/vault/api"
-
-
-	"fmt"
 	"os"
+	"fmt"
 	"encoding/json"
+
 )
+
+
+
+
 
 
 var vaultClient *VaultClient = new(VaultClient)
@@ -20,6 +23,7 @@ type VaultClient struct {
 	Sys vaultApi.Sys
 
 
+
 }
 
 
@@ -29,7 +33,18 @@ type ParamsVault struct{
 }
 
 //process structs
+type role_security_id struct{
+	role_id string
+	security_id string
 
+}
+
+
+type secret_data struct{
+	key string
+	value string
+
+}
 
 
 func LoadParamsConfVault(file string) ParamsVault {
@@ -139,4 +154,168 @@ func (c *VaultClient) EnableAuthWithOptions(path string, options *vaultApi.Enabl
 		return  e
 	}
 	return nil
+}
+
+
+func (c *VaultClient) SetPolicies(name, token , polices string) error {
+	body := map[string]string{
+		"polices": polices,
+	}
+
+
+	r := c.client.NewRequest("POST", fmt.Sprintf("/v1/auth/approle/role/%s", name))
+	if err := r.SetJSONBody(body); err != nil {
+		log.Error(err)
+		return err
+	}
+
+	r.Headers.Set("Content-Type", "application/json")
+	r.Headers.Set("X-Vault-Token", token)
+
+	resp, err := c.client.RawRequest(r)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	defer resp.Body.Close()
+
+	return nil
+}
+
+
+func (c *VaultClient) getCredentials(name, token string) role_security_id {
+
+
+
+	r := c.client.NewRequest("GET", fmt.Sprintf("/v1/auth/approle/role/%s/role-id", name))
+
+	r.Headers.Set("Content-Type", "application/json")
+	r.Headers.Set("X-Vault-Token", token)
+
+
+	resp, err := c.client.RawRequest(r)
+	if err != nil {
+		log.Error(err)
+	}
+	defer resp.Body.Close()
+
+	var result role_security_id
+	err = resp.DecodeJSON(&result)
+	if err != nil {
+		log.Error(err)
+	}
+
+	return result
+}
+
+func (c *VaultClient) createSecretId(name, token string) string {
+
+
+
+	r := c.client.NewRequest("POST", fmt.Sprintf("/v1/auth/approle/role/%s/secret-id", name))
+
+	r.Headers.Set("Content-Type", "application/json")
+	r.Headers.Set("X-Vault-Token", token)
+
+	resp, err := c.client.RawRequest(r)
+	if err != nil {
+		log.Error(err)
+	}
+	defer resp.Body.Close()
+
+	var result map[string]map[string]string
+
+	err = resp.DecodeJSON(&result)
+	if err != nil {
+		log.Error(err)
+	}
+
+	return result["data"]["secret_id"]
+}
+
+
+func (c *VaultClient) fetchNewToken(rsi *role_security_id) string {
+	body := map[string]string{
+		"role_id": rsi.role_id,
+		"secret_id": rsi.security_id,
+	}
+
+
+	r := c.client.NewRequest("POST", fmt.Sprintf("/v1/auth/approle/login"))
+	if err := r.SetJSONBody(body); err != nil {
+		log.Error(err)
+
+	}
+
+	r.Headers.Set("Content-Type", "application/json")
+
+
+	resp, err := c.client.RawRequest(r)
+	if err != nil {
+		log.Error(err)
+
+	}
+	defer resp.Body.Close()
+
+	var result map[string]map[string]string
+
+	err = resp.DecodeJSON(&result)
+	if err != nil {
+		log.Error(err)
+	}
+
+	return result["auth"]["client_token"]
+}
+
+
+func (c *VaultClient) createSecret(name, token string, sd secret_data) error {
+	body := map[string]string{
+		sd.key: sd.value,
+	}
+
+
+	r := c.client.NewRequest("POST", fmt.Sprintf("/v1/secret/%s", name))
+	if err := r.SetJSONBody(body); err != nil {
+		log.Error(err)
+		return err
+	}
+
+	r.Headers.Set("Content-Type", "application/json")
+	r.Headers.Set("X-Vault-Token", token)
+
+	resp, err := c.client.RawRequest(r)
+	if err != nil {
+		log.Error(err)
+		return err
+	}
+	defer resp.Body.Close()
+
+	return nil
+}
+
+
+func (c *VaultClient) readData(name, token string) secret_data {
+
+
+
+	r := c.client.NewRequest("GET", fmt.Sprintf("/v1/secret/%s", name))
+
+	r.Headers.Set("Content-Type", "application/json")
+	r.Headers.Set("X-Vault-Token", token)
+
+
+	resp, err := c.client.RawRequest(r)
+	if err != nil {
+		log.Error(err)
+	}
+	defer resp.Body.Close()
+
+	var result secret_data
+
+	err = resp.DecodeJSON(&result)
+	if err != nil {
+		log.Error(err)
+	}
+
+	return result
 }

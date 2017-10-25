@@ -6,7 +6,7 @@ This is a implementation tool for deploying cloud on nomad/consul/vault
 1. can support nomad deploy using your custom template, destroy job
 2. can support job/group/task template config on page(so far only 1)
 3. can support consul key/value create/delete
-4. can support vault init->unseal->enableAuth
+4. can support vault init->unseal->enableAuth->SetPolicies->getCredentials->createSecretId->fetchNewToken->createSecret->readData (need to test)
 
 
 Usage:
