@@ -13,7 +13,7 @@ import
 
 
 func main() {
-	fmt.Println("Deploy start")
+	fmt.Println("Destroy start")
 
 
 	//load parameters from json file for nomad

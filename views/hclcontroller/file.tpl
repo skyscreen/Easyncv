@@ -81,7 +81,7 @@ li a:hover {
   <header>
 <ul>
   <li><a href="/">Home</a></li>
-  <li><a href="/hcl">DeployFromHcl</a></li>
+  <li><a href="/">DeployFromHcl</a></li>
   <li><a href="/stop">Undeploy</a></li>
 
 </ul>

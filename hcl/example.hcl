@@ -52,7 +52,7 @@ job an-service-2017 {
             }
             env {
 				# for containerbuddy to talk to consul
-				NOMAD_IP = "10.173.76.57"
+				NOMAD_IP = "10.173.15。195"
 				CONSUL_IP = "global"
 				A1 = "A2"
 				AN_APP = "Authenticator"
