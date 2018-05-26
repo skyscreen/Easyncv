@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"fmt"
+	"github.com/nanobox-io/golang-scribble"
 )
 
 type TestConsulController struct {
@@ -18,14 +19,47 @@ type TestConsulServer struct {
 	TEST_SERVER string         `form:"testserver"`
 }
 
+type ConsulRec struct {
+	Name       string
+	Describtion string
+}
+
+
 var isConsulPeers = false
 var consulPeers = ""
+var db = ""
+
 
 func (c *TestConsulController) Get() {
 
 	c.Data["Form"] = &TestConsulServer{}
 	c.Data["Email"] = "sky.zhao@hydsoft.com"
-	c.TplName = "testnomadcontroller/get.tpl"
+	c.TplName = "testconsulcontroller/get.tpl"
+
+	db, _ := scribble.New("consulrecdb", nil)
+
+	records, err := db.ReadAll("consulrecord")
+	if err != nil {
+		fmt.Println("Error", err)
+	}
+
+
+
+	var ConsulRecs = []ConsulRec{}
+
+	for _, f := range records {
+		consulRec := ConsulRec{}
+		if err := json.Unmarshal([]byte(f), &consulRec); err != nil {
+			fmt.Println("Error", err)
+		}
+		fmt.Println(consulRec.Name + ":" + consulRec.Describtion + "<br>")
+
+		ConsulRecs = append(ConsulRecs,consulRec)
+	}
+	c.Data["ConsulRecs"] = ConsulRecs
+
+
+
 
 }
 
@@ -51,6 +85,11 @@ func (c *TestConsulController) Post() {
 	var f1 []string
 	if reqerr != nil {
 		c.Data["desc"] = " From server " + req.TEST_SERVER + "  can not find consul peer servers"
+		db, _ := scribble.New("consulrecdb", nil)
+		consulrec_1 := ConsulRec{}
+		consulrec_1.Name = req.TEST_SERVER
+		consulrec_1.Describtion = c.Data["desc"].(string)
+		db.Write("consulrecord", req.TEST_SERVER, consulrec_1)
 		return
 
 	}
@@ -61,7 +100,14 @@ func (c *TestConsulController) Post() {
 
 		jsonErr := json.Unmarshal(body, &f1)
 		if jsonErr != nil {
-			log.Fatal(jsonErr)
+			db, _ := scribble.New("consulrecdb", nil)
+			c.Data["desc"] = "  can not find  consul peer servers"
+			consulrec_1 := ConsulRec{}
+			consulrec_1.Name = req.TEST_SERVER
+			consulrec_1.Describtion = c.Data["desc"].(string)
+			db.Write("consulrecord", req.TEST_SERVER, consulrec_1)
+			//log.Fatal(jsonErr)
+			return
 		}
 		fmt.Println("==============================")
 
@@ -79,5 +125,15 @@ func (c *TestConsulController) Post() {
 			c.Data["desc"] = "  can not find  consul peer servers"
 		}
 
+		db, _ := scribble.New("consulrecdb", nil)
+		consulrec_1 := ConsulRec{}
+		consulrec_1.Name = req.TEST_SERVER
+		consulrec_1.Describtion = c.Data["desc"].(string)
+		db.Write("consulrecord", req.TEST_SERVER, consulrec_1)
+
+
+
+
 	}
 }
+
