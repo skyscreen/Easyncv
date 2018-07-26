@@ -1,7 +1,7 @@
 package controllers
 
 import (
-	//"easyncv/funcs"
+
 	"github.com/astaxie/beego"
 	"log"
 	"net/http"
@@ -121,7 +121,6 @@ func (c *TestNomadController) Post() {
 		body, _ := ioutil.ReadAll(response.Body)
 
 
-		//jsonErr := json.Unmarshal(body, &servicesr)
 		jsonErr := json.Unmarshal(body, &f1)
 		if jsonErr != nil {
 			db, _ := scribble.New("nomadrecdb", nil)
@@ -130,19 +129,18 @@ func (c *TestNomadController) Post() {
 			nomadrec_1.Describtion = "  can not find nomad server"
 			db.Write("nomadrecord", req.TEST_SERVER, nomadrec_1)
 			log.Fatal(jsonErr)
-			fmt.Println(jsonErr)
 			return
 		}
 		fmt.Println("==============================" )
 
 
-		//for _, v := range f1 {
 
-			fmt.Println(" value1=%v", f1)
-			NomadServerName = f1
-			isNomadServer = true
 
-		//}
+		fmt.Println(" value1=%v", f1)
+		NomadServerName = f1
+		isNomadServer = true
+
+
 
 
 

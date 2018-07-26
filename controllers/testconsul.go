@@ -107,7 +107,6 @@ func (c *TestConsulController) Post() {
 			consulrec_1.Name = req.TEST_SERVER
 			consulrec_1.Describtion = c.Data["desc"].(string)
 			db.Write("consulrecord", req.TEST_SERVER, consulrec_1)
-			//log.Fatal(jsonErr)
 			return
 		}
 		fmt.Println("==============================")
