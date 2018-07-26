@@ -83,6 +83,7 @@ func (c *TestConsulController) Post() {
 	response, reqerr := client.Do(request)
 
 	var f1 []string
+	var f2 string
 	if reqerr != nil {
 		c.Data["desc"] = " From server " + req.TEST_SERVER + "  can not find consul peer servers"
 		db, _ := scribble.New("consulrecdb", nil)
@@ -120,7 +121,14 @@ func (c *TestConsulController) Post() {
 		}
 
 		if isConsulPeers == true {
-			c.Data["desc"] = " From the server " + req.TEST_SERVER + " and find consul peer servers are :" + consulPeers
+			url  = "http://" + req.TEST_SERVER + ":8500/v1/status/leader"
+			request, _ := http.NewRequest("GET", url, nil)
+			request.Header.Set("Connection", "keep-alive")
+			response, _ := client.Do(request)
+			body, _ := ioutil.ReadAll(response.Body)
+			json.Unmarshal(body, &f2)
+
+			c.Data["desc"] = " From the server " + req.TEST_SERVER + " and find consul peer servers are :" + consulPeers + " and consul server is " + f2
 		} else {
 			c.Data["desc"] = "  can not find  consul peer servers"
 		}
