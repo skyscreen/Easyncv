@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"encoding/json"
 	"fmt"
+	"github.com/nanobox-io/golang-scribble"
 )
 
 
@@ -39,6 +40,11 @@ type servicesRes struct {
 
 }
 
+type NomadRec struct {
+	Name       string
+	Describtion string
+}
+
 var isNomadServer = false
 var NomadServerName = ""
 
@@ -48,9 +54,25 @@ func (c *TestNomadController) Get() {
 	c.Data["Email"] = "sky.zhao@hydsoft.com"
 	c.TplName = "testnomadcontroller/get.tpl"
 
+	db, _ := scribble.New("nomadrecdb", nil)
 
+	records, err := db.ReadAll("nomadrecord")
+	if err != nil {
+		fmt.Println("Error", err)
+	}
 
+	var NomadRecs = []NomadRec{}
 
+	for _, f := range records {
+		nomadRec := NomadRec{}
+		if err := json.Unmarshal([]byte(f), &nomadRec); err != nil {
+			fmt.Println("Error", err)
+		}
+		fmt.Println(nomadRec.Name + ":" + nomadRec.Describtion + "<br>")
+
+		NomadRecs = append(NomadRecs,nomadRec)
+	}
+	c.Data["NomadRecs"] = NomadRecs
 
 
 }
@@ -61,10 +83,12 @@ func (c *TestNomadController) Post() {
 		//handle error
 		c.Ctx.Output.SetStatus(400)
 		c.Ctx.Output.Body([]byte("empty body"))
+		c.Data["desc"] = "error"
 		return
 	}
 
-	url := "http://" +req.TEST_SERVER + ":8500/v1/agent/services"
+	//url := "http://" +req.TEST_SERVER + ":4646/v1/status/peers"
+	url := "http://" +req.TEST_SERVER + ":4646/v1/status/leader"
 
 	fmt.Println(req.TEST_SERVER)
 	log.Println(req.TEST_SERVER)
@@ -73,9 +97,18 @@ func (c *TestNomadController) Post() {
 	request, _ := http.NewRequest("GET", url, nil)
 	request.Header.Set("Connection", "keep-alive")
 	response, reqerr := client.Do(request)
-	var f interface{}
+
+	var f1 string
+
 	if reqerr != nil {
 		c.Data["desc"] = " From server " + req.TEST_SERVER + "  can not find nomad server"
+		db, _ := scribble.New("nomadrecdb", nil)
+		nomadrec_1 := NomadRec{}
+		nomadrec_1.Name = req.TEST_SERVER
+		nomadrec_1.Describtion = "  can not find nomad server"
+		db.Write("nomadrecord", req.TEST_SERVER, nomadrec_1)
+		fmt.Println("error url:" + url)
+		log.Println("error url:" + url)
 		return
 
 	}
@@ -86,39 +119,51 @@ func (c *TestNomadController) Post() {
 
 	if response.StatusCode == 200 {
 		body, _ := ioutil.ReadAll(response.Body)
-		fmt.Println(string(body))
+
 
 		//jsonErr := json.Unmarshal(body, &servicesr)
-		jsonErr := json.Unmarshal(body, &f)
+		jsonErr := json.Unmarshal(body, &f1)
 		if jsonErr != nil {
+			db, _ := scribble.New("nomadrecdb", nil)
+			nomadrec_1 := NomadRec{}
+			nomadrec_1.Name = req.TEST_SERVER
+			nomadrec_1.Describtion = "  can not find nomad server"
+			db.Write("nomadrecord", req.TEST_SERVER, nomadrec_1)
 			log.Fatal(jsonErr)
+			fmt.Println(jsonErr)
+			return
 		}
-		fmt.Println("==============================")
-		m := f.(map[string]interface{})
-		for k, v := range m {
-			//fmt.Println("key=%v, value=%v", k, v)
+		fmt.Println("==============================" )
 
 
-			if (k == "nomad") {
-				for k1, v1 := range v.(map[string]interface{}) {
-					fmt.Println("key1=%v, value1=%v", k1, v1)
-					if (k1 == "Address") {
-						//fmt.Println("vvvvvvvvvvvv %v", v1)
-						isNomadServer = true
-						NomadServerName = v1.(string)
-						break
-					}
-				}
+		//for _, v := range f1 {
 
-			}
+			fmt.Println(" value1=%v", f1)
+			NomadServerName = f1
+			isNomadServer = true
 
-		}
+		//}
+
+
+
+
 
 		if isNomadServer == true {
 			c.Data["desc"] = " From the server " + req.TEST_SERVER + " and find nomad server is " + NomadServerName
 		} else {
 			c.Data["desc"] = "  can not find nomad server"
 		}
+
+
+
+		db, _ := scribble.New("nomadrecdb", nil)
+		nomadrec_1 := NomadRec{}
+		nomadrec_1.Name = req.TEST_SERVER
+		nomadrec_1.Describtion = c.Data["desc"].(string)
+		db.Write("nomadrecord", req.TEST_SERVER, nomadrec_1)
+
+
+
 
 	}
 }
