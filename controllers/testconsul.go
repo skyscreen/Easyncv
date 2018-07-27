@@ -22,6 +22,7 @@ type TestConsulServer struct {
 type ConsulRec struct {
 	Name       string
 	Describtion string
+	ServerName string
 }
 
 
@@ -52,7 +53,7 @@ func (c *TestConsulController) Get() {
 		if err := json.Unmarshal([]byte(f), &consulRec); err != nil {
 			fmt.Println("Error", err)
 		}
-		fmt.Println(consulRec.Name + ":" + consulRec.Describtion + "<br>")
+		fmt.Println(consulRec.Name + ":" + consulRec.Describtion + ":"+ consulRec.ServerName +  "<br>")
 
 		ConsulRecs = append(ConsulRecs,consulRec)
 	}
@@ -90,6 +91,7 @@ func (c *TestConsulController) Post() {
 		consulrec_1 := ConsulRec{}
 		consulrec_1.Name = req.TEST_SERVER
 		consulrec_1.Describtion = c.Data["desc"].(string)
+		consulrec_1.ServerName = ""
 		db.Write("consulrecord", req.TEST_SERVER, consulrec_1)
 		return
 
@@ -106,6 +108,7 @@ func (c *TestConsulController) Post() {
 			consulrec_1 := ConsulRec{}
 			consulrec_1.Name = req.TEST_SERVER
 			consulrec_1.Describtion = c.Data["desc"].(string)
+			consulrec_1.ServerName = ""
 			db.Write("consulrecord", req.TEST_SERVER, consulrec_1)
 			return
 		}
@@ -136,6 +139,7 @@ func (c *TestConsulController) Post() {
 		consulrec_1 := ConsulRec{}
 		consulrec_1.Name = req.TEST_SERVER
 		consulrec_1.Describtion = c.Data["desc"].(string)
+		consulrec_1.ServerName = f2
 		db.Write("consulrecord", req.TEST_SERVER, consulrec_1)
 
 
